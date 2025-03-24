@@ -46,7 +46,7 @@ void loop() {
     sensorX = map(arbitraryValue, 0, 1023, -45, 45);
     sensorY = map(arbitraryValue, 0, 1023, -45, 45);
 
-    myOwnTilt.Process();
+    myOwnTilt.process();
 
     if (myOwnTilt.isConnected()) {
         // Already connected ?
