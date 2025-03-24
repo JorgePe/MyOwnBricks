@@ -63,7 +63,11 @@ void TiltSensor::setSensorTiltY(int8_t *pData){
  */
 void TiltSensor::commSendInitSequence(){
     // Initialize uart
+#if defined(ESP32)
+    SerialTTL.begin(2400, SERIAL_8N1, RXD1, TXD1);
+#else
     SerialTTL.begin(2400);
+#endif
 
     SerialTTL.write("\x40\x22\x9D", 3);                              // Type ID: 0x22
     SerialTTL.write("\x49\x03\x02\xB7", 4);                          // CMD_MODES: modes: 4, views: 3, Ext. Modes: 0 modes, 0 views

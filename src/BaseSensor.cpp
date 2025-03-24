@@ -20,8 +20,13 @@
 #include "BaseSensor.h"
 
 BaseSensor::BaseSensor() :
+#if defined(ESP32)
+    m_connSerialRX_pin(21),
+    m_connSerialTX_pin(19),
+#else
     m_connSerialRX_pin(0),
     m_connSerialTX_pin(1),
+#endif
     m_lastAckTick(0),
     m_connected(false)
 {}
@@ -114,7 +119,11 @@ void BaseSensor::connectToHub() {
             unsigned char dat = SerialTTL.read();
             if (dat == 0x04) { // ACK
                 //DEBUG_PRINTLN("Connection established !");
+#if defined(ESP32)                
+                SerialTTL.begin(115200, SERIAL_8N1, RXD1, TXD1);
+#else
                 SerialTTL.begin(115200);
+#endif
                 m_connected   = true;
                 m_lastAckTick = millis();
                 break;

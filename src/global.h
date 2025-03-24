@@ -26,6 +26,10 @@
 #if defined(ARDUINO_AVR_PROMICRO)
 #define SerialTTL    Serial1
 #define DbgSerial    Serial
+#elif defined(ESP32)
+#define TXD1 19  // GPIO 19 = D19
+#define RXD1 21  // GPIO 21 = D21
+#define SerialTTL Serial1
 #else
 #define SerialTTL    Serial
 #endif

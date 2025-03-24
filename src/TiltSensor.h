@@ -34,7 +34,7 @@
  *      also called pitch/tangage.
  *      Continuous values ??...??
  */
-class TiltSensor : BaseSensor {
+class TiltSensor : public BaseSensor {
     // LEGO POWERED UP WEDO 2.0 Tilt sensor modes
     // https://github.com/pybricks/pybricks-micropython/blob/master/pybricks/util_pb/pb_device.h
     enum {
