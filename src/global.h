@@ -29,6 +29,7 @@
 #elif defined(ESP32)
 #define TXD1 19  // GPIO 19 = D19
 #define RXD1 21  // GPIO 21 = D21
+#elif defined(ARDUINO_ARCH_RP2040)
 #define SerialTTL Serial1
 #else
 #define SerialTTL    Serial
