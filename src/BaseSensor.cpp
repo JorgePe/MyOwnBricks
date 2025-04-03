@@ -24,8 +24,9 @@ BaseSensor::BaseSensor() :
     m_connSerialRX_pin(21),
     m_connSerialTX_pin(19),
 #else
-    m_connSerialRX_pin(0),
-    m_connSerialTX_pin(1),
+    // this works for Raspberry Pi Pico and XIAO RP2040
+    m_connSerialRX_pin(1),
+    m_connSerialTX_pin(0),
 #endif
     m_lastAckTick(0),
     m_connected(false)
