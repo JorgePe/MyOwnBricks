@@ -64,7 +64,9 @@ void CustomSensor::commSendInitSequence(){
     SerialTTL.write("\x98\x02\x00\x00\xC8\xC2\x00\x00\xC8\x42\xE5", 11);                    // PCT Range: -100.0% to 100.0%
     SerialTTL.write("\x98\x03\x00\x00\x34\xC2\x00\x00\x34\x42\xE4", 11);                    // Si Range: -45.0 to 45.0
     SerialTTL.write("\x90\x04\x44\x45\x47\x00\x2D", 7);                                     // Si Symbol: DEG
-    SerialTTL.write("\x88\x05\x10\x00\x62", 5);                                             // input_flags: Absolute, output_flags: None
+
+    // added output_flags
+    SerialTTL.write("\x88\x05\x10\x10\x72", 5);                       // input_flags: Absolute, output_flags: Absolute
     
     // Mode 0 just sends 1 byte (DATA8 for 8-bit signed integer = int8)
     SerialTTL.write("\x90\x80\x01\x00\x03\x00\xED", 7);                                     // Format: DATA8, 3 figures, 0 decimals
@@ -89,6 +91,7 @@ void CustomSensor::handleModes(){
     if (SerialTTL.available() == 0)
         return;
 
+    unsigned char mode;
     unsigned char header = SerialTTL.read();
 
     if (header == 0x02) {  // NACK
@@ -114,7 +117,47 @@ void CustomSensor::handleModes(){
             default:
                 break;
         }
+
+    // for output: added check for extra header - copied from ColorDistanceSensor.cpp
+    // with just a few modifications
+    } else if (header == 0x46) {
+        // "Set value" commands
+        // The message has 2 parts (each with header, value and checksum):
+        // - The EXT_MODE status as value
+        // - The LUMP_MSG_TYPE_DATA itself with its data as value
+
+        // Get data1, checksum1, header2 (header of the next message)
+        size_t ret = SerialTTL.readBytes(m_rxBuf, 3);
+        if (ret < 3)
+            // check if all expected bytes are received without timeout
+            return;
+
+        this->m_currentExtMode = m_rxBuf[0];
+
+        // Get mode and size of the message from the header
+        uint8_t msg_size;
+        parseHeader(m_rxBuf[2], mode, msg_size);
+        // TODO: avoid buffer overflow: check msg size <= size rx buffer
+
+        // Read the remaining bytes after the header (cheksum included)
+        // Data will be in the indexes [0;msg_size-2]
+        ret = SerialTTL.readBytes(m_rxBuf, msg_size - 1);
+        if (_(signed)(ret) != msg_size - 1)
+            return;
+
+        switch(mode) {
+            // if Hub is writing to Mode MYOWNSWITCH
+            // store data in member variable
+            case CustomSensor::LEGO_DEVICE_MODE_PUP_CUSTOM_SENSOR__MYOWNSWITCH:
+                this->m_sensorOutput = m_rxBuf[0];
+                break;
+            default:
+                INFO_PRINT(F("unknown W mode: "));
+                INFO_PRINTLN(mode, HEX);
+                break;
+        }
     }
+
 }
 
 

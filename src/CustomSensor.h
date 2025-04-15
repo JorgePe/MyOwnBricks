@@ -43,11 +43,16 @@ public:
     void setSensorSwitch(int8_t *pData);  
     void sensorSwitchMode_0();
     
+    int8_t m_sensorOutput;
+    
 private:
     // Process queries from/to hub
     virtual void handleModes();
     virtual void commSendInitSequence();
 
+    // UART protocol
+    uint8_t m_currentExtMode = 0;
+    
     int8_t *m_sensorSwitch;  
 };
 
